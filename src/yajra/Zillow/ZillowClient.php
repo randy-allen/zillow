@@ -50,7 +50,7 @@ class ZillowClient
     /**
      * @var array
      */
-    protected $photos = [];
+    protected $photos = collect();
 
     /**
      * @var array - valid callbacks
@@ -200,13 +200,19 @@ class ZillowClient
      */
     public function getPhotos($uri)
     {
-        $this->photos = [];
+        $this->photos = collect();
+
         $client       = new GoutteClient;
         $crawler      = $client->request('GET', $uri);
 
         // Get the latest post in this category and display the titles
-        $crawler->filter('.photos a')->each(function ($node) {
-            $this->photos[] = $node->filter('img')->attr('src') ?: $node->filter('img')->attr('href');
+        $crawler->filter('.photo-tile-image')->each(function ($node) {
+            $this->photos->push($node->attr('src') ?: $node->filter('img')->attr('href'));
+        });
+
+        // convert url to get a larger image
+        $this->photos = $this->photos->map(function ($photo) {
+            return preg_replace('/\/p_c\//', '/p_h/', $photo); 
         });
 
         $this->response = $this->photos;
