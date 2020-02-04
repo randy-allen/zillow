@@ -48,7 +48,7 @@ class ZillowClient
     protected $results;
 
     /**
-     * @var array
+     * @var Illuminate\Support\Collection
      */
     protected $photos = collect();
 
